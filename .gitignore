@@ -1,0 +1,13 @@
+.DS_Store
+*.o
+*.out
+*.exe
+*.dll
+*.lib
+*.exp
+*.def
+memory_manager
+metrics_collector
+scheduler
+lru_page_replacement
+file_system
