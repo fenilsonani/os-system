@@ -1,0 +1,31 @@
+# Build artifacts
+bin/
+obj/
+*.o
+*.out
+*.exe
+
+# Enhanced executables (keep source organized)
+scheduler 
+memory_manager
+file_system_enhanced
+lru_enhanced
+metrics_enhanced
+
+# Baseline executables
+scheduler_original
+memory_manager_original
+file_system_original
+lru_page_replacement_original
+metrics_collector_original
+
+# System files
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Debug files
+*.dSYM/
+core
+core.*

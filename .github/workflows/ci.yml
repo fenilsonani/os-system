@@ -1,0 +1,94 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+        optimization: ['-O0', '-O2', '-O3']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential valgrind clang
+    
+    - name: Build components
+      run: |
+        make clean
+        make CFLAGS="-Wall -Wextra -g -pthread -std=c99 ${{ matrix.optimization }}" CC=${{ matrix.compiler }}
+    
+    - name: Run basic tests
+      run: |
+        make test
+    
+    - name: Memory leak check
+      if: matrix.compiler == 'gcc' && matrix.optimization == '-O2'
+      run: |
+        valgrind --tool=memcheck --leak-check=full --error-exitcode=1 ./scheduler || true
+        valgrind --tool=memcheck --leak-check=full --error-exitcode=1 ./memory_manager || true
+    
+    - name: Thread safety check  
+      if: matrix.compiler == 'gcc' && matrix.optimization == '-O2'
+      run: |
+        valgrind --tool=helgrind ./scheduler || true
+
+  benchmark:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential time
+    
+    - name: Build optimized version
+      run: |
+        make clean
+        make CFLAGS="-Wall -Wextra -O3 -march=native -pthread -std=c99"
+    
+    - name: Run performance benchmarks
+      run: |
+        echo "=== Performance Benchmarks ===" > benchmark_results.txt
+        echo "Scheduler Performance:" >> benchmark_results.txt
+        /usr/bin/time -v ./scheduler 2>&1 | grep -E "(User time|System time|Maximum resident set size)" >> benchmark_results.txt
+        echo "Memory Manager Performance:" >> benchmark_results.txt  
+        /usr/bin/time -v ./memory_manager 2>&1 | grep -E "(User time|System time|Maximum resident set size)" >> benchmark_results.txt
+    
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmark-results
+        path: benchmark_results.txt
+
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run CodeQL Analysis
+      uses: github/codeql-action/init@v3
+      with:
+        languages: cpp
+    
+    - name: Build for analysis
+      run: |
+        make clean
+        make CFLAGS="-Wall -Wextra -O2 -g -pthread -std=c99"
+    
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
