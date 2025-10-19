@@ -1,31 +1,78 @@
 # Build artifacts
 bin/
 obj/
+build/
+dist/
 *.o
 *.out
 *.exe
+*.a
+*.so
+*.dylib
 
-# Enhanced executables (keep source organized)
-scheduler 
-memory_manager
-file_system_enhanced
-lru_enhanced
-metrics_enhanced
-
-# Baseline executables
-scheduler_original
-memory_manager_original
-file_system_original
-lru_page_replacement_original
-metrics_collector_original
+# All compiled executables (keep only source code)
+/scheduler
+/scheduler_original
+/memory_manager
+/memory_manager_original
+/file_system
+/file_system_enhanced
+/file_system_original
+/lru_enhanced
+/lru_page_replacement
+/lru_page_replacement_original
+/metrics_enhanced
+/metrics_collector
+/metrics_collector_original
+/benchmark
+/filesystem_baseline
+/memory_baseline
+/micro_benchmark
+/performance_test
 
 # System files
 .DS_Store
+.AppleDouble
+.LSOverride
 *.swp
 *.swo
 *~
+.*.sw[a-z]
+._*
+Thumbs.db
+Desktop.ini
 
 # Debug files
 *.dSYM/
+*.pdb
+*.ilk
 core
 core.*
+vgcore.*
+
+# IDE and editor files
+.vscode/
+.idea/
+*.sublime-*
+.project
+.cproject
+.settings/
+*.code-workspace
+
+# Dependency directories
+node_modules/
+vendor/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+*.old
+.cache/
+
+# Test coverage
+coverage/
+*.gcov
+*.gcda
+*.gcno
